@@ -13,7 +13,7 @@ router.route('/monthly-plan/:year').get(tour.getMonthlyPlant)
 router
   .route('/')
   .get(tour.getAllTours)
-  .post([tour.createTour])
+  .post(tour.createTour)
 
 router
   .route('/:id')
