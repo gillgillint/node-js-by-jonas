@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const slugify = require('slugify')
-const validator = require('validator')
 
 const tour = new mongoose.Schema(
   {
@@ -16,7 +15,7 @@ const tour = new mongoose.Schema(
     slug: String,
     duration: {
       type: Number,
-      require: [true, 'A tour must have a duration']
+      required: [true, 'A tour must have a duration']
     },
     maxGroupSize: {
       type: Number,
