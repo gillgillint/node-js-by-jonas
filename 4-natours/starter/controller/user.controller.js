@@ -11,8 +11,6 @@ exports.getAllUsers = catchAsync(async(req, res) => {
       user
     }
   })
-
- 
 });
 exports.getUser = (req, res) => {
   res.status(500).json({
