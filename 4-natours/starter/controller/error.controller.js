@@ -28,6 +28,12 @@ const errOnDev = (err, res) => {
   })
 }
 
+const handleJWTError = () =>
+  new AppError('Invalid token please log in again!', 401)
+
+const handleJWTExpiredError = () =>
+  new AppError('token has expired! Please log in again.', 401)
+
 const errOnProd = (err, res) => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
@@ -60,10 +66,12 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err }
 
-
     if (error.name === 'CastError') error = handleCastErrorDB(error)
     if (error.code === 11000) error = handleDuplicateFieldsDB(error)
-    if (error._message.includes('validation failed')) error = handleValidationError(error)
+    if (error._message.includes('validation failed'))
+      error = handleValidationError(error)
+    if (error.name === 'JsonWebTokenError') error = handleJWTError(error)
+    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError(error)
 
     errOnProd(error, res)
   }

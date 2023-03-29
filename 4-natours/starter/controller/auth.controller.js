@@ -60,16 +60,28 @@ exports.protect = catchAsync(async (req, res, next) => {
     token = authorization.split(' ')[1]
   }
 
-  console.log(token)
-
   if (!token) {
     return next(new AppError('Your are not logged in!', 401))
   }
-
   // 2) Verification token
+  const decoded = jwt.verify(token, process.env.JWT_SECRET) // มี parameter ตัวที่ 3 ด้วย เป็น callback ว่าโทเคนผ่านหรือเปล่า หรือหมออายุหรือยัง
 
   // 3) Check if user still exists
+  const user = await User.findById(decoded.id)
+
+  if (!user) {
+    return next(
+      new AppError('The user belonging to this token does no longer exist', 401)
+    )
+  }
 
   // 4) Check if user changed password after the token was issued
+  if (user.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password! Please log in again', 401)
+    )
+  }
+
+  req.user = user
   next()
 })
