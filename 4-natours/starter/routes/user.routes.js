@@ -6,14 +6,18 @@ const router = express.Router()
 
 router.post('/signup', auth.signup)
 router.post('/login', auth.login)
-
 router.post('/forgotPassword', auth.forgotPassword)
 router.patch('/resetPassword/:token', auth.resetPassword)
 
-router.post('/updatePassword', auth.protect, auth.updatePassword)
+// Protect all routes after this middleware
+router.use(auth.protect)
 
-router.patch('/updateMe', auth.protect, user.updateMe)
-router.delete('/deleteMe', auth.protect, user.deleteMe)
+router.post('/updatePassword', auth.updatePassword)
+router.get('/me', user.getMe, user.getUser)
+router.patch('/updateMe', user.updateMe)
+router.delete('/deleteMe', user.deleteMe)
+
+router.use(auth.authorization('admin'))
 
 router
   .route('/')

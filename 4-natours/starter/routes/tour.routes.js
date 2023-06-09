@@ -19,17 +19,31 @@ router.use('/:tourId/review', reviewRouter)
 router.route('/top-5-cheap').get(tour.aliasTopTours, tour.getAllTours)
 
 router.route('/tour-stats').get(tour.getTourStats)
-router.route('/monthly-plan/:year').get(tour.getMonthlyPlant)
+router
+  .route('/monthly-plan/:year')
+  .get(
+    auth.protect,
+    auth.authorization('admin', 'lead-guide', 'guide'),
+    tour.getMonthlyPlant
+  )
 
 router
   .route('/')
-  .get([auth.protect, tour.getAllTours])
-  .post(tour.createTour)
+  .get(tour.getAllTours)
+  .post(
+    auth.protect,
+    auth.authorization('admin', 'lead-guide'),
+    tour.createTour
+  )
 
 router
   .route('/:id')
   .get(tour.getTour)
-  .patch(tour.updateTour)
+  .patch(
+    auth.protect,
+    auth.authorization('admin', 'lead-guide'),
+    tour.updateTour
+  )
   .delete(
     auth.protect,
     auth.authorization('admin', 'lead-guide'),
