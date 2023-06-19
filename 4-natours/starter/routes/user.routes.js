@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post('/signup', auth.signup)
 router.post('/login', auth.login)
+router.get('/logout', auth.logout)
 router.post('/forgotPassword', auth.forgotPassword)
 router.patch('/resetPassword/:token', auth.resetPassword)
 
@@ -14,7 +15,12 @@ router.use(auth.protect)
 
 router.post('/updatePassword', auth.updatePassword)
 router.get('/me', user.getMe, user.getUser)
-router.patch('/updateMe', user.updateMe)
+router.patch(
+  '/updateMe',
+  user.uploadUserPhoto,
+  user.resizeUserPhoto,
+  user.updateMe
+)
 router.delete('/deleteMe', user.deleteMe)
 
 router.use(auth.authorization('admin'))

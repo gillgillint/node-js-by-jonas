@@ -19,13 +19,22 @@ const handleValidationError = err => {
   return new AppError(message, 400)
 }
 
-const errOnDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    stack: err.stack,
-    error: err
-  })
+const errOnDev = (err, req, res) => {
+  if (req.originalUrl.startsWith('/api')) {
+    // API
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      stack: err.stack,
+      error: err
+    })
+  } else {
+    // RENDERED WEBSITE
+    res.status(err.statusCode).render('error', {
+      title: 'something want wrong',
+      message: err.message
+    })
+  }
 }
 
 const handleJWTError = () =>
@@ -34,16 +43,17 @@ const handleJWTError = () =>
 const handleJWTExpiredError = () =>
   new AppError('token has expired! Please log in again.', 401)
 
-const errOnProd = (err, res) => {
-  // Operational, trusted error: send message to client
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message
-    })
-
+const errOnProd = (err, req, res) => {
+  if (req.originalUrl.startsWith('/api')) {
+    // API
+    // Operational, trusted error: send message to client
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message
+      })
+    }
     // Programming or other unknown error: don't leak error details to client
-  } else {
     // 1) Log error
     console.error('ERROR 💥', err)
 
@@ -53,6 +63,23 @@ const errOnProd = (err, res) => {
       message: 'Something went wrong!'
     })
   }
+  // RENDER WEBSITE
+  if (err.isOperational) {
+    return res.status(err.statusCode).render('error', {
+      title: 'something want wrong',
+      message: err.message
+    })
+
+    // Programming or other unknown error: don't leak error details to client
+  }
+  // 1) Log error
+  console.error('ERROR 💥', err)
+
+  // 2)  Send generic message
+  return res.status(500).render('error', {
+    title: 'something want wrong',
+    message: 'Please try again later'
+  })
 }
 
 module.exports = (err, req, res, next) => {
@@ -62,9 +89,10 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error'
 
   if (process.env.NODE_ENV === 'development') {
-    errOnDev(err, res)
+    errOnDev(err, req, res)
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err }
+    error.message = err.message
 
     if (error.name === 'CastError') error = handleCastErrorDB(error)
     if (error.code === 11000) error = handleDuplicateFieldsDB(error)
@@ -73,6 +101,6 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error)
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError(error)
 
-    errOnProd(error, res)
+    errOnProd(error, req, res)
   }
 }

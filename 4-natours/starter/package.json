@@ -7,12 +7,13 @@
     "start": "nodemon server.js",
     "start:production": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js",
-    "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
+    "watch:js": "parcel watch  --no-hmr ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -22,11 +23,14 @@
     "express-rate-limit": "^6.7.0",
     "helmet": "^7.0.0",
     "hpp": "^0.2.3",
+    "html-to-text": "^9.0.5",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.12.0",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.2",
     "pug": "^3.0.2",
+    "sharp": "^0.32.1",
     "slugify": "^1.6.5",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"
@@ -40,6 +44,7 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-react": "^7.31.8",
+    "parcel-bundler": "^1.12.5",
     "prettier": "^1.19.1"
   },
   "engines": {
